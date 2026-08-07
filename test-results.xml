@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="D:\project\uploaded\sibaka\phpunit.xml" tests="1" assertions="0" errors="1" failures="0" skipped="0" time="0.000000">
+    <testsuite name="Property" tests="1" assertions="0" errors="1" failures="0" skipped="0" time="0.000000">
+      <testsuite name="Tests\Property\AnonymousRateLimitPropertyTest" file="D:\project\uploaded\sibaka\tests\Property\AnonymousRateLimitPropertyTest.php" tests="1" assertions="0" errors="1" failures="0" skipped="0" time="0.000000">
+        <testcase name="testRateLimitInvariant" file="D:\project\uploaded\sibaka\tests\Property\AnonymousRateLimitPropertyTest.php" line="230" class="Tests\Property\AnonymousRateLimitPropertyTest" classname="Tests.Property.AnonymousRateLimitPropertyTest" assertions="0" time="0.000000">
+          <error type="Illuminate\Database\QueryException">Tests\Property\AnonymousRateLimitPropertyTest::testRateLimitInvariant&#13;
+Illuminate\Database\QueryException: could not find driver (Connection: sqlite, SQL: PRAGMA foreign_keys = ON;)
+&#13;
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\Connection.php:825
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\Connection.php:779
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\Connection.php:560
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\Schema\Builder.php:522
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\SQLiteConnection.php:59
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\SQLiteConnection.php:28
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\Connectors\ConnectionFactory.php:277
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\Connectors\ConnectionFactory.php:76
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\Connectors\ConnectionFactory.php:51
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\DatabaseManager.php:207
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\DatabaseManager.php:103
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\Migrations\DatabaseMigrationRepository.php:226
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\Migrations\DatabaseMigrationRepository.php:182
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:742
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\Console\Migrations\FreshCommand.php:68
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:658
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Database\Console\Migrations\FreshCommand.php:67
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php:36
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Container\Util.php:43
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php:95
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php:35
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Container\Container.php:696
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Console\Command.php:213
+D:\project\uploaded\sibaka\vendor\symfony\console\Command\Command.php:341
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Console\Command.php:182
+D:\project\uploaded\sibaka\vendor\symfony\console\Application.php:1094
+D:\project\uploaded\sibaka\vendor\symfony\console\Application.php:356
+D:\project\uploaded\sibaka\vendor\symfony\console\Application.php:195
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Console\Application.php:166
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Foundation\Console\Kernel.php:427
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Testing\PendingCommand.php:332
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Testing\PendingCommand.php:556
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\InteractsWithConsole.php:87
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Foundation\Testing\RefreshDatabase.php:66
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Foundation\Testing\RefreshDatabase.php:25
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\InteractsWithTestCaseLifecycle.php:209
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\InteractsWithTestCaseLifecycle.php:97
+D:\project\uploaded\sibaka\vendor\laravel\framework\src\Illuminate\Foundation\Testing\TestCase.php:44
+D:\project\uploaded\sibaka\tests\Property\AnonymousRateLimitPropertyTest.php:31</error>
+        </testcase>
+      </testsuite>
+    </testsuite>
+  </testsuite>
+</testsuites>
