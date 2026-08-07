@@ -10,12 +10,12 @@ function getSystemPreference(): boolean {
 }
 
 function getStoredPreference(): DarkModePreference {
-  if (typeof window === 'undefined') return 'system';
+  if (typeof window === 'undefined') return 'light';
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === 'light' || stored === 'dark' || stored === 'system') {
     return stored;
   }
-  return 'system';
+  return 'light'; // default ke light mode
 }
 
 function resolveIsDark(preference: DarkModePreference): boolean {

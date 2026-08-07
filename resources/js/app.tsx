@@ -15,15 +15,10 @@ createInertiaApp({
       )
     ),
   setup({ el, App, props }) {
-    // Detect system dark mode preference on initial load
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const storedTheme = localStorage.getItem('sibaka-theme');
-
-    if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    // Paksa light mode — hapus class dark dari awal
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('dark-mode-preference', 'light');
+    localStorage.setItem('sibaka-theme', 'light');
 
     createRoot(el).render(<App {...props} />);
   },
