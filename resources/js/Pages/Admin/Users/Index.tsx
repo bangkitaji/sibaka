@@ -14,6 +14,7 @@ interface UserItem {
   entry_year: number;
   graduation_year: number;
   role: string;
+  roles?: { id: number; name: string }[];
   verification_status: string;
   is_suspended: boolean;
   suspended_until: string | null;
@@ -55,12 +56,6 @@ export default function AdminUsersIndex() {
       verification_status: selectedStatus,
       is_suspended: suspendedFilter,
     }, { preserveState: true });
-  };
-
-  const handleRoleChange = (userId: string, newRole: string) => {
-    if (confirm(`Change this user's role to ${newRole}?`)) {
-      router.put(`/admin/users/${userId}/role`, { role: newRole });
-    }
   };
 
   const handleToggleSuspension = (userId: string, isSuspended: boolean) => {
@@ -134,7 +129,7 @@ export default function AdminUsersIndex() {
               <thead className="border-b border-border bg-muted/50 text-xs font-semibold uppercase text-muted-foreground">
                 <tr>
                   <th className="p-4">Name & Email</th>
-                  <th className="p-4">Department / Batch</th>
+                  <th className="p-4">Department / Entry Year</th>
                   <th className="p-4">Verification</th>
                   <th className="p-4">Role</th>
                   <th className="p-4">Status</th>
@@ -149,8 +144,8 @@ export default function AdminUsersIndex() {
                       <div className="text-xs text-muted-foreground">{user.email}</div>
                     </td>
                     <td className="p-4 text-xs">
-                      <div>{user.department || '-'}</div>
-                      <div className="text-muted-foreground">Class of {user.graduation_year}</div>
+                      <div className="font-medium">{user.department || '-'}</div>
+                      <div className="text-muted-foreground font-mono">{user.entry_year || '-'}</div>
                     </td>
                     <td className="p-4">
                       <span
@@ -166,15 +161,30 @@ export default function AdminUsersIndex() {
                       </span>
                     </td>
                     <td className="p-4">
-                      <select
-                        value={user.role}
-                        onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                        className="text-xs rounded border border-border bg-background px-2 py-1 focus:outline-none"
-                      >
-                        {roles.map((r) => (
-                          <option key={r} value={r} className="capitalize">{r}</option>
-                        ))}
-                      </select>
+                      <div className="flex flex-wrap gap-1">
+                        {user.roles && user.roles.length > 0 ? (
+                          user.roles.map((r) => (
+                            <span
+                              key={r.name}
+                              className={`px-2 py-0.5 text-xs rounded font-medium capitalize font-mono ${
+                                r.name === 'super-admin' || r.name === 'admin'
+                                  ? 'bg-purple-500/10 text-purple-600 border border-purple-500/30 font-semibold'
+                                  : r.name === 'instructor'
+                                  ? 'bg-blue-500/10 text-blue-600 border border-blue-500/30 font-semibold'
+                                  : r.name === 'moderator'
+                                  ? 'bg-amber-500/10 text-amber-600 border border-amber-500/30 font-semibold'
+                                  : 'bg-muted text-muted-foreground border border-border'
+                              }`}
+                            >
+                              {r.name}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="px-2 py-0.5 text-xs rounded bg-muted text-muted-foreground font-medium capitalize font-mono border border-border">
+                            {user.role || 'member'}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="p-4">
                       {user.is_suspended ? (

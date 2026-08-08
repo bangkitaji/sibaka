@@ -172,7 +172,7 @@ export default function AdminLayout({ title, children }: AdminLayoutProps) {
 
       <div className="min-h-screen bg-background flex flex-col tablet:flex-row text-foreground">
         {/* Mobile Header */}
-        <header className="tablet:hidden flex items-center justify-between border-b border-border bg-card px-4 py-3">
+        <header className="tablet:hidden flex items-center justify-between border-b border-border bg-card px-4 h-[72.8px]">
           <Link href="/admin/dashboard" className="text-lg font-bold text-primary flex items-center gap-2.5">
             <img src="/images/logo.png" alt="SIBAKA Logo" className="h-8 w-auto object-contain" />
             <span>SIBAKA Admin</span>
@@ -197,7 +197,7 @@ export default function AdminLayout({ title, children }: AdminLayoutProps) {
           } tablet:block w-full tablet:w-64 border-r border-border bg-card flex-shrink-0 flex flex-col justify-between`}
         >
           <div>
-            <div className="p-5 border-b border-border hidden tablet:flex items-center justify-between">
+            <div className="px-5 border-b border-border hidden tablet:flex items-center justify-between h-[72.8px]">
               <Link href="/" className="text-xl font-bold text-primary flex items-center gap-2.5">
                 <img src="/images/logo.png" alt="SIBAKA Logo" className="h-8 w-auto object-contain" />
                 <span>SIBAKA</span>
@@ -298,6 +298,16 @@ export default function AdminLayout({ title, children }: AdminLayoutProps) {
 
           <div className="p-4 border-t border-border space-y-2">
             <Link
+              href="/directory"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              My Profile
+            </Link>
+            <Link
               href="/"
               className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground rounded-md transition-colors"
             >
@@ -306,7 +316,20 @@ export default function AdminLayout({ title, children }: AdminLayoutProps) {
               </svg>
               Back to Main Portal
             </Link>
-            <div className="pt-2 flex items-center gap-2 text-xs text-muted-foreground px-3">
+            <Link
+              href="/logout"
+              method="post"
+              as="button"
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-md transition-colors font-medium text-left cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              Logout
+            </Link>
+            <div className="pt-2 flex items-center gap-2 text-xs text-muted-foreground px-3 border-t border-border/50">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
               Logged in as <strong className="text-foreground">{auth?.user?.name}</strong>
             </div>
@@ -315,6 +338,58 @@ export default function AdminLayout({ title, children }: AdminLayoutProps) {
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+          {/* Top Admin Navbar */}
+          <header className="hidden tablet:flex items-center justify-between border-b border-border bg-card px-8 h-[72.8px] sticky top-0 z-30 shadow-xs">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
+              <span className="bg-primary/10 text-primary px-2.5 py-0.5 rounded text-xs font-mono font-bold">
+                ADMIN PANEL
+              </span>
+              <span>&middot;</span>
+              <span className="text-foreground font-semibold">{title || 'Dashboard'}</span>
+            </div>
+
+            <div className="flex items-center gap-4">
+              {/* My Profile Link */}
+              <Link
+                href="/directory"
+                className="flex items-center gap-2 text-xs font-semibold text-foreground hover:text-primary transition-colors px-3 py-1.5 rounded-md hover:bg-accent"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                <span>My Profile</span>
+              </Link>
+
+              <div className="h-4 w-px bg-border" />
+
+              {/* User Avatar / Name */}
+              <div className="flex items-center gap-2 text-xs">
+                <div className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs border border-primary/20">
+                  {auth?.user?.name ? auth.user.name.charAt(0).toUpperCase() : 'A'}
+                </div>
+                <span className="font-semibold text-foreground">{auth?.user?.name}</span>
+              </div>
+
+              <div className="h-4 w-px bg-border" />
+
+              {/* Logout Button */}
+              <Link
+                href="/logout"
+                method="post"
+                as="button"
+                className="flex items-center gap-1.5 text-xs font-semibold text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors cursor-pointer"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                <span>Logout</span>
+              </Link>
+            </div>
+          </header>
+
           {flash?.status && (
             <div className="mx-6 mt-6 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-sm">
               {flash.status}

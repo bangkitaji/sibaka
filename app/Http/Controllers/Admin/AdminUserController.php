@@ -14,6 +14,9 @@ use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
+
 class AdminUserController extends Controller
 {
     public function index(Request $request): Response
@@ -40,14 +43,17 @@ class AdminUserController extends Controller
             $query->where('is_suspended', filter_var($request->input('is_suspended'), FILTER_VALIDATE_BOOLEAN));
         }
 
-        $users = $query->latest()
+        $users = $query->with('roles')
+            ->latest()
             ->paginate(15)
             ->withQueryString();
+
+        $allRoles = Role::orderBy('name', 'asc')->pluck('name')->toArray();
 
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
             'filters' => $request->only(['search', 'role', 'verification_status', 'is_suspended']),
-            'roles' => UserRole::cases(),
+            'roles' => $allRoles,
             'verificationStatuses' => VerificationStatus::cases(),
         ]);
     }
@@ -56,14 +62,17 @@ class AdminUserController extends Controller
     {
         $user = User::with([
             'profile',
+            'roles',
             'contents' => fn ($q) => $q->latest()->take(10),
             'comments' => fn ($q) => $q->latest()->take(10),
             'warnings' => fn ($q) => $q->latest(),
         ])->findOrFail($id);
 
+        $allRoles = Role::orderBy('name', 'asc')->pluck('name')->toArray();
+
         return Inertia::render('Admin/Users/Show', [
             'userData' => $user,
-            'roles' => UserRole::cases(),
+            'roles' => $allRoles,
             'verificationStatuses' => VerificationStatus::cases(),
         ]);
     }
@@ -71,21 +80,29 @@ class AdminUserController extends Controller
     public function updateRole(Request $request, string $id): RedirectResponse
     {
         $request->validate([
-            'role' => ['required', Rule::enum(UserRole::class)],
+            'role' => ['required', 'string', 'exists:roles,name'],
         ]);
 
         $user = User::findOrFail($id);
+        $newRole = $request->input('role');
 
         // Prevent admin from demoting themselves
-        if ($user->id === $request->user()->id && $request->input('role') !== UserRole::Admin->value) {
-            return redirect()->back()->with('error', 'You cannot change your own admin role.');
+        if ($user->id === $request->user()->id && !in_array($newRole, ['admin', 'super-admin'], true)) {
+            return redirect()->back()->with('error', 'You cannot remove admin role from yourself.');
         }
 
-        $user->update([
-            'role' => $request->input('role'),
-        ]);
+        $user->syncRoles([$newRole]);
 
-        return redirect()->back()->with('status', "User {$user->name}'s role updated to {$user->role->value}.");
+        // Sync legacy role column for fallback compatibility
+        $primaryRole = in_array($newRole, ['admin', 'super-admin'], true) ? 'admin' :
+                      ($newRole === 'moderator' ? 'moderator' :
+                      ($newRole === 'member' || $newRole === 'instructor' ? 'member' : 'pending'));
+
+        $user->update(['role' => $primaryRole]);
+
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        return redirect()->back()->with('status', "User {$user->name}'s role updated to {$newRole}.");
     }
 
     public function toggleSuspension(Request $request, string $id): RedirectResponse
