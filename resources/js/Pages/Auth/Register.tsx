@@ -1,18 +1,38 @@
 import { type FormEventHandler, useState } from 'react';
-import { Link, useForm } from '@inertiajs/react';
+import { Link, useForm, usePage } from '@inertiajs/react';
 import AuthLayout from '@/Layouts/AuthLayout';
 import { Button } from '@/Components/UI/button';
 import { Input } from '@/Components/UI/input';
 import { Label } from '@/Components/UI/label';
+import SearchableYearSelect from '@/Components/UI/SearchableYearSelect';
+import SearchableSelect, { type SelectOption } from '@/Components/UI/SearchableSelect';
+import type { SharedPageProps } from '@/types/index.d';
+
+interface DepartmentOption {
+  id: string;
+  code: string;
+  name: string;
+}
+
+interface RegisterPageProps extends SharedPageProps {
+  departments?: DepartmentOption[];
+}
 
 export default function Register() {
-  const currentYear = new Date().getFullYear();
+  const { departments = [] } = usePage<RegisterPageProps>().props;
   const [showOptional, setShowOptional] = useState(false);
+
+  const departmentOptions: SelectOption[] = departments.map((dept) => ({
+    value: dept.name,
+    label: dept.name,
+    sublabel: dept.code,
+  }));
 
   const { data, setData, post, processing, errors } = useForm({
     name: '',
     email: '',
     password: '',
+    entry_year: '',
     graduation_year: '',
     department: '',
     linkedin_url: '',
@@ -114,61 +134,45 @@ export default function Register() {
               )}
             </div>
 
-            {/* Graduation Year & Department - Two column on tablet+ */}
-            <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
-              {/* Graduation Year */}
-              <div className="space-y-2">
-                <Label htmlFor="graduation_year">
-                  Graduation Year <span className="text-destructive">*</span>
-                </Label>
-                <select
-                  id="graduation_year"
-                  value={data.graduation_year}
-                  onChange={(e) => setData('graduation_year', e.target.value)}
+            {/* Academic Info: Year of Entry, Year of Graduation & Department */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
+                {/* Year of Entry (Mandatory) */}
+                <SearchableYearSelect
+                  id="entry_year"
+                  label="Year of Entry"
+                  value={data.entry_year}
+                  onChange={(val) => setData('entry_year', val)}
                   required
-                  aria-invalid={!!errors.graduation_year}
-                  aria-describedby={errors.graduation_year ? 'graduation-year-error' : undefined}
-                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-touch"
-                >
-                  <option value="">Select year</option>
-                  {Array.from(
-                    { length: currentYear - 1979 + 1 },
-                    (_, i) => currentYear - i
-                  ).map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-                {errors.graduation_year && (
-                  <p id="graduation-year-error" className="text-sm text-destructive" role="alert">
-                    {errors.graduation_year}
-                  </p>
-                )}
+                  minYear={1975}
+                  error={errors.entry_year}
+                  placeholder="Search or select entry year..."
+                />
+
+                {/* Year of Graduation (Mandatory) */}
+                <SearchableYearSelect
+                  id="graduation_year"
+                  label="Year of Graduation"
+                  value={data.graduation_year}
+                  onChange={(val) => setData('graduation_year', val)}
+                  required
+                  minYear={1979}
+                  error={errors.graduation_year}
+                  placeholder="Search or select graduation year..."
+                />
               </div>
 
-              {/* Department */}
-              <div className="space-y-2">
-                <Label htmlFor="department">
-                  Department <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="department"
-                  type="text"
-                  value={data.department}
-                  onChange={(e) => setData('department', e.target.value)}
-                  placeholder="e.g., Teknik Komputer"
-                  required
-                  maxLength={100}
-                  aria-invalid={!!errors.department}
-                  aria-describedby={errors.department ? 'department-error' : undefined}
-                />
-                {errors.department && (
-                  <p id="department-error" className="text-sm text-destructive" role="alert">
-                    {errors.department}
-                  </p>
-                )}
-              </div>
+              {/* Department (Searchable) */}
+              <SearchableSelect
+                id="department"
+                label="Department / Jurusan"
+                value={data.department}
+                options={departmentOptions}
+                onChange={(val) => setData('department', val)}
+                required
+                error={errors.department}
+                placeholder="Search by code or department name (e.g. SIJA, TME, TEI)..."
+              />
             </div>
           </fieldset>
 

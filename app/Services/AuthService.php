@@ -24,6 +24,7 @@ class AuthService implements AuthServiceInterface
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
+            'entry_year' => $data['entry_year'],
             'graduation_year' => $data['graduation_year'],
             'department' => $data['department'],
         ]);

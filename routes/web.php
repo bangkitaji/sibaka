@@ -1,5 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminDepartmentController;
+use App\Http\Controllers\Admin\AdminRoleController;
+use App\Http\Controllers\Admin\AdminContentController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminInviteCodeController;
+use App\Http\Controllers\Admin\AdminSettingsController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminVerificationController;
 use App\Http\Controllers\Auth\InviteCodeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -144,10 +152,53 @@ Route::middleware('auth')->group(function () {
             Route::post('/warn', [WarningController::class, 'store'])->name('moderation.warn');
         });
 
-        // Admin verification management routes
-        Route::prefix('admin')->group(function () {
-            Route::post('/verify/{userId}/approve', [VerificationController::class, 'approve'])->name('admin.verify.approve');
-            Route::post('/verify/{userId}/reject', [VerificationController::class, 'reject'])->name('admin.verify.reject');
+        // ─────────────────────────────────────────────────────────────────────
+        // Admin Routes (auth + verified + can:admin)
+        // ─────────────────────────────────────────────────────────────────────
+
+        Route::prefix('admin')->middleware('can:admin')->group(function () {
+            Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+
+            // User management
+            Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users.index');
+            Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('admin.users.show');
+            Route::put('/users/{user}/role', [AdminUserController::class, 'updateRole'])->name('admin.users.update-role');
+            Route::post('/users/{user}/toggle-suspension', [AdminUserController::class, 'toggleSuspension'])->name('admin.users.toggle-suspension');
+
+            // Content management
+            Route::get('/content', [AdminContentController::class, 'index'])->name('admin.content.index');
+            Route::get('/content/{content}/edit', [AdminContentController::class, 'edit'])->name('admin.content.edit');
+            Route::put('/content/{content}', [AdminContentController::class, 'update'])->name('admin.content.update');
+            Route::delete('/content/{content}', [AdminContentController::class, 'destroy'])->name('admin.content.destroy');
+            Route::post('/content/{content}/restore', [AdminContentController::class, 'restore'])->name('admin.content.restore');
+            Route::post('/content/{content}/toggle-lock', [AdminContentController::class, 'toggleLock'])->name('admin.content.toggle-lock');
+
+            // Verification management
+            Route::get('/verification', [AdminVerificationController::class, 'index'])->name('admin.verification.index');
+            Route::post('/verification/{user}/approve', [AdminVerificationController::class, 'approve'])->name('admin.verification.approve');
+            Route::post('/verification/{user}/reject', [AdminVerificationController::class, 'reject'])->name('admin.verification.reject');
+
+            // Invite Code management
+            Route::get('/invite-codes', [AdminInviteCodeController::class, 'index'])->name('admin.invite-codes.index');
+            Route::post('/invite-codes', [AdminInviteCodeController::class, 'store'])->name('admin.invite-codes.store');
+            Route::delete('/invite-codes/{inviteCode}', [AdminInviteCodeController::class, 'destroy'])->name('admin.invite-codes.destroy');
+
+            // Role & Permission Management (RBAC)
+            Route::get('/roles', [AdminRoleController::class, 'index'])->name('admin.roles.index');
+            Route::post('/roles', [AdminRoleController::class, 'storeRole'])->name('admin.roles.store');
+            Route::put('/roles/{role}/permissions', [AdminRoleController::class, 'updateRolePermissions'])->name('admin.roles.update-permissions');
+            Route::put('/users/{user}/spatie-roles', [AdminRoleController::class, 'assignUserRoles'])->name('admin.users.assign-spatie-roles');
+
+            // Department Management
+            Route::get('/departments', [AdminDepartmentController::class, 'index'])->name('admin.departments.index');
+            Route::post('/departments', [AdminDepartmentController::class, 'store'])->name('admin.departments.store');
+            Route::put('/departments/{department}', [AdminDepartmentController::class, 'update'])->name('admin.departments.update');
+            Route::post('/departments/{department}/toggle-active', [AdminDepartmentController::class, 'toggleActive'])->name('admin.departments.toggle-active');
+            Route::delete('/departments/{department}', [AdminDepartmentController::class, 'destroy'])->name('admin.departments.destroy');
+
+            // Site Settings
+            Route::get('/settings', [AdminSettingsController::class, 'index'])->name('admin.settings.index');
+            Route::put('/settings', [AdminSettingsController::class, 'update'])->name('admin.settings.update');
         });
     });
 });

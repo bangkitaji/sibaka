@@ -92,6 +92,11 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function registerGates(): void
     {
+        // Implicitly grant 'super-admin' role all permissions
+        Gate::before(function (User $user, string $ability) {
+            return $user->hasRole('super-admin') ? true : null;
+        });
+
         // Moderator or admin access
         Gate::define('moderate', function (User $user): bool {
             return $user->isModerator();

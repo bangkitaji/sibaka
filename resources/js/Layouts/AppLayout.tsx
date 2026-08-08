@@ -54,6 +54,22 @@ export default function AppLayout({ title, header, children }: AppLayoutProps) {
                     >
                       Create
                     </Link>
+                    {(auth.user.role === 'admin' || auth.user.role === 'moderator') && (
+                      <Link
+                        href="/moderation/dashboard"
+                        className="min-h-touch min-w-touch flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                      >
+                        Moderation
+                      </Link>
+                    )}
+                    {auth.user.role === 'admin' && (
+                      <Link
+                        href="/admin/dashboard"
+                        className="min-h-touch min-w-touch flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                      >
+                        Admin
+                      </Link>
+                    )}
                   </>
                 )}
               </div>

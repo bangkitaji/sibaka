@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Auth;
 use App\Contracts\AuthServiceInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\Department;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -23,7 +24,11 @@ class RegisterController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');
+        $departments = Department::active()->ordered()->get(['id', 'code', 'name']);
+
+        return Inertia::render('Auth/Register', [
+            'departments' => $departments,
+        ]);
     }
 
     /**

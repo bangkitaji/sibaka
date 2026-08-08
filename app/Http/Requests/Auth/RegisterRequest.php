@@ -25,7 +25,8 @@ class RegisterRequest extends FormRequest
             'name' => ['required', 'string', 'min:1', 'max:100'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
-            'graduation_year' => ['required', 'integer', 'min:1979', 'max:' . date('Y')],
+            'entry_year' => ['required', 'integer', 'min:1975', 'max:' . (date('Y') + 4)],
+            'graduation_year' => ['required', 'integer', 'min:1979', 'gte:entry_year', 'max:' . (date('Y') + 10)],
             'department' => ['required', 'string', 'min:1', 'max:100'],
             'linkedin_url' => ['nullable', 'url', 'max:200'],
             'github_url' => ['nullable', 'url', 'max:200'],
@@ -40,8 +41,9 @@ class RegisterRequest extends FormRequest
     {
         return [
             'email.unique' => 'The email address is already registered.',
-            'graduation_year.min' => 'The graduation year must be 1979 or later.',
-            'graduation_year.max' => 'The graduation year cannot be in the future.',
+            'entry_year.required' => 'The Year of Entry is required.',
+            'graduation_year.required' => 'The Year of Graduation is required.',
+            'graduation_year.gte' => 'The Year of Graduation must be equal to or after the Year of Entry.',
             'password.min' => 'The password must be at least 8 characters.',
         ];
     }

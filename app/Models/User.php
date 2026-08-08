@@ -11,10 +11,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, HasUuids, Notifiable;
+    use HasApiTokens, HasFactory, HasRoles, HasUuids, Notifiable;
 
     public $incrementing = false;
 
@@ -144,17 +145,22 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->role === UserRole::Admin;
+        return $this->hasAnyRole(['admin', 'super-admin']) || ($this->role === UserRole::Admin);
     }
 
     public function isModerator(): bool
     {
-        return $this->role === UserRole::Moderator || $this->role === UserRole::Admin;
+        return $this->hasAnyRole(['moderator', 'admin', 'super-admin']) || in_array($this->role, [UserRole::Moderator, UserRole::Admin], true);
     }
 
     public function isMember(): bool
     {
-        return in_array($this->role, [UserRole::Member, UserRole::Moderator, UserRole::Admin], true);
+        return $this->hasAnyRole(['member', 'instructor', 'moderator', 'admin', 'super-admin']) || in_array($this->role, [UserRole::Member, UserRole::Moderator, UserRole::Admin], true);
+    }
+
+    public function isInstructor(): bool
+    {
+        return $this->hasRole('instructor') || $this->hasPermissionTo('create-course');
     }
 
     public function isVerified(): bool
