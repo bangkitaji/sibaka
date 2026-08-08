@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDepartmentController;
+use App\Http\Controllers\Admin\AdminPermissionController;
 use App\Http\Controllers\Admin\AdminRoleController;
 use App\Http\Controllers\Admin\AdminContentController;
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -183,11 +184,17 @@ Route::middleware('auth')->group(function () {
             Route::post('/invite-codes', [AdminInviteCodeController::class, 'store'])->name('admin.invite-codes.store');
             Route::delete('/invite-codes/{inviteCode}', [AdminInviteCodeController::class, 'destroy'])->name('admin.invite-codes.destroy');
 
-            // Role & Permission Management (RBAC)
+            // Role Management
             Route::get('/roles', [AdminRoleController::class, 'index'])->name('admin.roles.index');
             Route::post('/roles', [AdminRoleController::class, 'storeRole'])->name('admin.roles.store');
             Route::put('/roles/{role}/permissions', [AdminRoleController::class, 'updateRolePermissions'])->name('admin.roles.update-permissions');
             Route::put('/users/{user}/spatie-roles', [AdminRoleController::class, 'assignUserRoles'])->name('admin.users.assign-spatie-roles');
+
+            // Permission Management
+            Route::get('/permissions', [AdminPermissionController::class, 'index'])->name('admin.permissions.index');
+            Route::post('/permissions', [AdminPermissionController::class, 'store'])->name('admin.permissions.store');
+            Route::put('/permissions/{permission}', [AdminPermissionController::class, 'update'])->name('admin.permissions.update');
+            Route::delete('/permissions/{permission}', [AdminPermissionController::class, 'destroy'])->name('admin.permissions.destroy');
 
             // Department Management
             Route::get('/departments', [AdminDepartmentController::class, 'index'])->name('admin.departments.index');

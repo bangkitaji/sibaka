@@ -41,6 +41,69 @@ interface RolesIndexProps extends SharedPageProps {
   };
 }
 
+interface PermissionGroup {
+  name: string;
+  badge: string;
+  permissions: PermissionItem[];
+}
+
+function groupPermissions(permissions: PermissionItem[]): PermissionGroup[] {
+  const groups: Record<string, { badge: string; items: PermissionItem[] }> = {
+    'Admin & Access Management': { badge: '🛡️', items: [] },
+    'Learning Center & Courses': { badge: '🎓', items: [] },
+    'Content & Moderation': { badge: '📝', items: [] },
+    'Community & Directory': { badge: '👥', items: [] },
+    'General & Others': { badge: '⚙️', items: [] },
+  };
+
+  permissions.forEach((perm) => {
+    const name = perm.name.toLowerCase();
+    if (
+      name.includes('admin') ||
+      name.includes('manage-') ||
+      name.includes('role') ||
+      name.includes('setting') ||
+      name.includes('invite') ||
+      name.includes('department')
+    ) {
+      groups['Admin & Access Management'].items.push(perm);
+    } else if (
+      name.includes('course') ||
+      name.includes('workshop') ||
+      name.includes('enroll') ||
+      name.includes('instructor') ||
+      name.includes('learning')
+    ) {
+      groups['Learning Center & Courses'].items.push(perm);
+    } else if (
+      name.includes('post') ||
+      name.includes('content') ||
+      name.includes('comment') ||
+      name.includes('moderate') ||
+      name.includes('article')
+    ) {
+      groups['Content & Moderation'].items.push(perm);
+    } else if (
+      name.includes('directory') ||
+      name.includes('profile') ||
+      name.includes('alumni') ||
+      name.includes('verify')
+    ) {
+      groups['Community & Directory'].items.push(perm);
+    } else {
+      groups['General & Others'].items.push(perm);
+    }
+  });
+
+  return Object.entries(groups)
+    .filter(([_, group]) => group.items.length > 0)
+    .map(([groupName, group]) => ({
+      name: groupName,
+      badge: group.badge,
+      permissions: group.items,
+    }));
+}
+
 export default function AdminRolesIndex() {
   const { roles, permissions, users, filters } = usePage<RolesIndexProps>().props;
 
@@ -50,6 +113,8 @@ export default function AdminRolesIndex() {
   );
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [searchUser, setSearchUser] = useState(filters.search || '');
+
+  const groupedPermissionsList = groupPermissions(permissions);
 
   // Form for creating new role
   const createForm = useForm({
@@ -68,6 +133,18 @@ export default function AdminRolesIndex() {
     } else {
       setRolePermissions([...rolePermissions, permissionName]);
     }
+  };
+
+  const handleGroupSelectAll = (groupPerms: PermissionItem[]) => {
+    const names = groupPerms.map((p) => p.name);
+    const updated = Array.from(new Set([...rolePermissions, ...names]));
+    setRolePermissions(updated);
+  };
+
+  const handleGroupDeselectAll = (groupPerms: PermissionItem[]) => {
+    const names = groupPerms.map((p) => p.name);
+    const updated = rolePermissions.filter((p) => !names.includes(p));
+    setRolePermissions(updated);
   };
 
   const handleSaveRolePermissions = () => {
@@ -111,21 +188,21 @@ export default function AdminRolesIndex() {
   };
 
   return (
-    <AdminLayout title="Roles & Permissions">
+    <AdminLayout title="Role Management">
       <div className="space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Role & Permission Management (RBAC)</h1>
+            <h1 className="text-2xl font-bold text-foreground">Role Management (RBAC)</h1>
             <p className="text-sm text-muted-foreground">
-              Configure dynamic role permissions and assign instructor/member roles for Learning Center.
+              Configure dynamic role permissions grouped by functional domains and assign roles to users.
             </p>
           </div>
           <Button onClick={() => setShowCreateModal(true)}>
-            + Create New Custom Role
+            + Create Custom Role
           </Button>
         </div>
 
-        {/* Section 1: Role Permissions Matrix */}
+        {/* Section 1: Role Permissions Matrix (Grouped) */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Roles Selector Tabs */}
           <Card className="lg:col-span-1 p-4 space-y-2">
@@ -154,7 +231,7 @@ export default function AdminRolesIndex() {
             </div>
           </Card>
 
-          {/* Permissions Matrix for Selected Role */}
+          {/* Grouped Permissions Matrix for Selected Role */}
           <Card className="lg:col-span-3">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
@@ -162,47 +239,86 @@ export default function AdminRolesIndex() {
                   Permissions for Role: <span className="text-primary">{selectedRole?.name}</span>
                 </CardTitle>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Check or uncheck granular permissions to dynamically adjust access rights.
+                  Permissions are grouped by feature categories for easier configuration.
                 </p>
               </div>
               <Button onClick={handleSaveRolePermissions} size="sm">
                 Save Matrix Changes
               </Button>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {permissions.map((perm) => {
-                  const isChecked = rolePermissions.includes(perm.name);
-                  const isSuperAdmin = selectedRole?.name === 'super-admin';
+            <CardContent className="space-y-6">
+              {groupedPermissionsList.map((group) => {
+                const isSuperAdmin = selectedRole?.name === 'super-admin';
 
-                  return (
-                    <label
-                      key={perm.id}
-                      className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${
-                        isChecked
-                          ? 'border-primary/50 bg-primary/5'
-                          : 'border-border bg-card'
-                      } ${isSuperAdmin ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        disabled={isSuperAdmin}
-                        onChange={() => handlePermissionToggle(perm.name)}
-                        className="mt-0.5 h-4 w-4 rounded border-input text-primary focus:ring-ring"
-                      />
-                      <div>
-                        <span className="text-sm font-mono font-semibold text-foreground block">
-                          {perm.name}
-                        </span>
-                        <span className="text-xs text-muted-foreground capitalize">
-                          {perm.name.replace(/-/g, ' ')}
+                return (
+                  <div key={group.name} className="space-y-3 border-b border-border/50 pb-6 last:border-0 last:pb-0">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">{group.badge}</span>
+                        <h3 className="text-sm font-bold text-foreground">
+                          {group.name}
+                        </h3>
+                        <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full font-mono">
+                          {group.permissions.length}
                         </span>
                       </div>
-                    </label>
-                  );
-                })}
-              </div>
+
+                      {!isSuperAdmin && (
+                        <div className="flex items-center gap-2 text-xs">
+                          <button
+                            type="button"
+                            onClick={() => handleGroupSelectAll(group.permissions)}
+                            className="text-primary hover:underline font-medium"
+                          >
+                            Select All
+                          </button>
+                          <span className="text-muted-foreground">&middot;</span>
+                          <button
+                            type="button"
+                            onClick={() => handleGroupDeselectAll(group.permissions)}
+                            className="text-muted-foreground hover:text-foreground hover:underline"
+                          >
+                            Deselect All
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {group.permissions.map((perm) => {
+                        const isChecked = rolePermissions.includes(perm.name);
+
+                        return (
+                          <label
+                            key={perm.id}
+                            className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${
+                              isChecked
+                                ? 'border-primary/50 bg-primary/5'
+                                : 'border-border bg-card'
+                            } ${isSuperAdmin ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              disabled={isSuperAdmin}
+                              onChange={() => handlePermissionToggle(perm.name)}
+                              className="mt-0.5 h-4 w-4 rounded border-input text-primary focus:ring-ring"
+                            />
+                            <div>
+                              <span className="text-sm font-mono font-semibold text-foreground block">
+                                {perm.name}
+                              </span>
+                              <span className="text-xs text-muted-foreground capitalize">
+                                {perm.name.replace(/-/g, ' ')}
+                              </span>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
             </CardContent>
           </Card>
         </div>
@@ -278,14 +394,14 @@ export default function AdminRolesIndex() {
         {/* Modal Create New Role */}
         {showCreateModal && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <Card className="max-w-lg w-full">
+            <Card className="max-w-xl w-full">
               <CardHeader>
                 <CardTitle className="text-lg">Create Custom Role</CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleCreateRoleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="role_name">Role Name</Label>
+                    <Label htmlFor="role_name">Role Name *</Label>
                     <Input
                       id="role_name"
                       placeholder="e.g. instructor, editor, mentor"
@@ -298,32 +414,42 @@ export default function AdminRolesIndex() {
                     )}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Assign Initial Permissions</Label>
-                    <div className="max-h-60 overflow-y-auto border border-border rounded p-3 space-y-2 text-xs">
-                      {permissions.map((p) => {
-                        const isChecked = createForm.data.permissions.includes(p.name);
-                        return (
-                          <label key={p.id} className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => {
-                                if (isChecked) {
-                                  createForm.setData(
-                                    'permissions',
-                                    createForm.data.permissions.filter((perm) => perm !== p.name)
-                                  );
-                                } else {
-                                  createForm.setData('permissions', [...createForm.data.permissions, p.name]);
-                                }
-                              }}
-                              className="rounded border-input text-primary"
-                            />
-                            <span className="font-mono">{p.name}</span>
-                          </label>
-                        );
-                      })}
+                  <div className="space-y-3">
+                    <Label>Assign Initial Permissions (Grouped)</Label>
+                    <div className="max-h-72 overflow-y-auto border border-border rounded-lg p-3 space-y-4 text-xs">
+                      {groupedPermissionsList.map((group) => (
+                        <div key={group.name} className="space-y-2">
+                          <div className="font-bold text-foreground flex items-center gap-1.5 border-b border-border/40 pb-1">
+                            <span>{group.badge}</span>
+                            <span>{group.name}</span>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-2">
+                            {group.permissions.map((p) => {
+                              const isChecked = createForm.data.permissions.includes(p.name);
+                              return (
+                                <label key={p.id} className="flex items-center gap-2 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={() => {
+                                      if (isChecked) {
+                                        createForm.setData(
+                                          'permissions',
+                                          createForm.data.permissions.filter((perm) => perm !== p.name)
+                                        );
+                                      } else {
+                                        createForm.setData('permissions', [...createForm.data.permissions, p.name]);
+                                      }
+                                    }}
+                                    className="rounded border-input text-primary"
+                                  />
+                                  <span className="font-mono text-xs">{p.name}</span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
