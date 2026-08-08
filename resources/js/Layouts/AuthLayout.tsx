@@ -12,27 +12,23 @@ export default function AuthLayout({ title, children }: AuthLayoutProps) {
 
       <div className="min-h-screen flex bg-background">
         {/* Left Side - Image Background */}
-        <div className="hidden desktop:flex desktop:w-1/2 relative bg-primary overflow-hidden">
-          <div
+        <div className="hidden desktop:flex desktop:w-[60%] relative bg-primary overflow-hidden">
+          <div 
             className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] hover:scale-105"
-            style={{ backgroundImage: "url('/images/auth-bg.png')" }}
+            style={{ backgroundImage: "url('/images/smkn7_generated_bg.png')" }}
           />
-          <div className="absolute inset-0 bg-primary/20 backdrop-blur-[2px]" />
-          <div className="relative z-10 w-full flex flex-col items-center justify-end text-white p-12 h-full bg-gradient-to-t from-primary/80 to-transparent">
-             {/* Text over background could go here */}
-          </div>
         </div>
 
         {/* Right Side - Form */}
-        <div className="w-full desktop:w-1/2 flex flex-col justify-center px-4 py-8 tablet:px-8 desktop:px-24">
+        <div className="w-full desktop:w-[40%] flex flex-col justify-center px-4 py-8 tablet:px-8 desktop:px-16">
           <div className="mx-auto w-full max-w-md">
             {/* Brand / Logo */}
-            <div className="mb-8 text-center">
+            <div className="mb-6 text-center">
               <Link href="/" className="inline-flex flex-col items-center group">
-                <img
-                  src="/images/logo.png"
-                  alt="SIBAKA Logo"
-                  className="h-32 w-auto mb-4 drop-shadow-sm transition-transform group-hover:scale-105 duration-300"
+                <img 
+                  src="/images/logo.png" 
+                  alt="SIBAKA Logo" 
+                  className="h-24 w-auto drop-shadow-sm transition-transform group-hover:scale-105 duration-300" 
                 />
               </Link>
             </div>
@@ -43,9 +39,21 @@ export default function AuthLayout({ title, children }: AuthLayoutProps) {
             </div>
 
             {/* Footer */}
-            <p className="mt-8 text-center text-xs text-muted-foreground">
-              STM Pembangunan Semarang Alumni IT Portal
-            </p>
+            <div className="mt-8 flex flex-col items-center justify-center gap-2 text-xs text-muted-foreground">
+              <span>Empowered and Supported By</span>
+              <div className="flex items-center gap-3">
+                <img 
+                  src="/images/Logo SMKN 7 Semarang.png" 
+                  alt="SMK 7 Semarang" 
+                  className="h-6 w-auto object-contain"
+                />
+                <img 
+                  src="/images/logo_kamisetembang_hd.png" 
+                  alt="Kamisetembang" 
+                  className="h-6 w-auto object-contain"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
